@@ -1,0 +1,30 @@
+input {
+  file {
+   path => "/jmeter/results/results.jtl"
+  }
+}
+
+filter {
+  csv {
+    columns => ["timeStamp","elapsed","label","responseCode","responseMessage","threadName","dataType","success","failureMessage","bytes","sentBytes","grpThreads","allThreads","Latency","IdleTime","Connect","conversationId","applicationName","testId","testDesc","applicationVersion"]
+    add_tag => [ "%{applicationName}","%{testId}","%{testDesc}","%{applicationVersion}" ]
+  }
+  mutate { convert => { "elapsed" => "integer" } }
+  mutate { convert => { "responseCode" => "integer" } }
+  mutate { convert => { "bytes" => "integer" } }
+  mutate { convert => { "sentBytes" => "integer" } }
+  mutate { convert => { "grpThreads" => "integer" } }
+  mutate { convert => { "allThreads" => "integer" } }
+  mutate { convert => { "Latency" => "integer" } }
+  mutate { convert => { "IdleTime" => "integer" } }
+  mutate { convert => { "Connect" => "integer" } }
+  mutate { split => { "threadName" => "-" } }
+  mutate { replace => {"threadName" => "%{[threadName][0]}"} }
+}
+
+output {
+  elasticsearch {
+    hosts => "localhost"
+    index => "disney-%{+YYYY-MM-dd}"
+  }
+}
