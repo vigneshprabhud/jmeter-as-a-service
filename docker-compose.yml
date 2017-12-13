@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  wdpr-ee-ra-pe-logstash-service:
+    network_mode: "host"
+    build: ./wdpr-ee-ra-pe-logstash-service
+    volumes:
+        - /home/vignesh/jmeter/results/:/jmeter/results/
+
+  wdpr-ee-ra-pe-jmeter-service:
+    network_mode: "host"
+    build:
+      context: ./
+      dockerfile: ./wdpr-ee-ra-pe-jmeter-service/Dockerfile
+    volumes:
+      - /home/vignesh/jmeter/results/:/jmeter/results
+    environment:
+      - "APPLICATION_NAME=${APPLICATION_NAME}"
+      - "TEST_ID=${TEST_ID}"
+      - "TEST_DESC=${TEST_DESC}"
+      - "APPLICATION_VERSION=${APPLICATION_VERSION}"
+    depends_on:
+      - wdpr-ee-ra-pe-logstash-service
